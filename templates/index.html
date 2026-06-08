@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сколько стоит твой бизнес</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#f4f1fb;color:#514c6b;min-height:100vh}
+.gradient-text{background:linear-gradient(135deg,#a78bfa 0%,#f0abfc 50%,#7dd3fc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.card{background:#fff;border:1px solid #ece7f7;border-radius:16px;box-shadow:0 2px 12px rgba(130,110,190,.05)}
+.card-hover{transition:border-color .2s,transform .2s}
+.card-hover:hover{border-color:#c4b5fd;transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(135deg,#b29df5,#c9a9f3);color:#fff;border:none;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(167,139,250,.35)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-secondary{background:#f3eefb;border:1px solid #e4dcf3;color:#7c7799;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-secondary:hover{background:#ebe2f8;color:#5d5878;border-color:#c9bdee}
+.input-field{background:#faf8fe;border:1px solid #e6dff3;border-radius:12px;padding:12px 16px;color:#514c6b;font-size:14px;width:100%;font-family:inherit;transition:border-color .2s;outline:none;resize:vertical}
+.input-field:focus{border-color:#a78bfa}
+.input-field::placeholder{color:#aba5c4}
+textarea.input-field{min-height:90px}
+.progress-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;transition:all .3s;flex-shrink:0}
+.progress-dot.active{background:linear-gradient(135deg,#b29df5,#c9a9f3);color:#fff}
+.progress-dot.completed{background:#86d9b0;color:#fff}
+.progress-dot.pending{background:#f1ecfa;color:#aba5c4;border:1px solid #e4dcf3}
+.progress-line{height:2px;flex:1;transition:background .3s;min-width:4px}
+.progress-line.done{background:#86d9b0}
+.progress-line.undone{background:#e4dcf3}
+.tab-btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;border:1px solid transparent;background:transparent;color:#8884a3;font-family:inherit;white-space:nowrap}
+.tab-btn:hover{color:#5d5878;background:#f3eefb}
+.tab-btn.active{background:linear-gradient(135deg,#b29df5,#c9a9f3);color:#fff}
+.fade-in{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pulse{animation:pulse 2s infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1.2s linear infinite}
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;display:inline-flex;align-items:center}
+.badge-critical{background:rgba(220,38,38,.12);color:#dc2626}
+.badge-high{background:rgba(232,138,138,.18);color:#c05555}
+.badge-medium{background:rgba(230,170,80,.2);color:#b8762a}
+.badge-low{background:rgba(110,200,160,.2);color:#2a8e63}
+.badge-blue{background:rgba(99,102,241,.12);color:#4f46e5}
+.badge-green{background:rgba(34,197,94,.12);color:#16a34a}
+.risk-row{padding:12px;border-radius:10px;border:1px solid #ece7f7;margin-bottom:8px}
+.meter-bg{background:#ece7f7;border-radius:99px;height:8px;overflow:hidden}
+.meter-fill{height:100%;border-radius:99px;transition:width 1s ease}
+.verdict-undervalued{background:linear-gradient(135deg,#d1fae5,#a7f3d0);border:1px solid #6ee7b7;color:#065f46}
+.verdict-fair{background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:1px solid #93c5fd;color:#1e40af}
+.verdict-overvalued{background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fbbf24;color:#92400e}
+.verdict-high_overvalued{background:linear-gradient(135deg,#fee2e2,#fecaca);border:1px solid #f87171;color:#991b1b}
+.driver-card{padding:12px 14px;border-radius:12px;border-left:4px solid;margin-bottom:8px}
+.driver-high{border-color:#22c55e;background:#f0fdf4}
+.driver-medium{border-color:#f59e0b;background:#fffbeb}
+.driver-low{border-color:#94a3b8;background:#f8fafc}
+.destroyer-card{padding:12px 14px;border-radius:12px;border-left:4px solid;margin-bottom:8px}
+.destroyer-high{border-color:#ef4444;background:#fff1f2}
+.destroyer-medium{border-color:#f59e0b;background:#fffbeb}
+.step-action{padding:12px 14px;border-radius:10px;background:#faf8fe;border:1px solid #e4dcf3;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start}
+.growth-target{padding:16px;border-radius:14px;text-align:center;margin-bottom:16px}
+.growth-20{background:linear-gradient(135deg,#d1fae5,#a7f3d0);border:1px solid #6ee7b7}
+.growth-50{background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:1px solid #93c5fd}
+.growth-100{background:linear-gradient(135deg,#ede9fe,#ddd6fe);border:1px solid #a78bfa}
+.method-block{padding:16px;border-radius:14px;border:1px solid #ece7f7;background:#faf8fe;margin-bottom:12px}
+.method-weight{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;font-size:14px;font-weight:800;background:linear-gradient(135deg,#b29df5,#c9a9f3);color:#fff}
+.area-card{padding:14px;border-radius:12px;border:1px solid #ece7f7;background:#fff}
+.score-label{font-size:22px;font-weight:800;color:#363150}
+.conf-high{color:#059669;background:#d1fae5;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.conf-medium{color:#d97706;background:#fef3c7;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.conf-low{color:#dc2626;background:#fee2e2;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.mult-row{display:grid;grid-template-columns:1fr 80px 100px 100px;gap:8px;padding:10px 0;border-bottom:1px solid #f3eefb;font-size:13px;align-items:center}
+.prob-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f3eefb}
+@media print{body{background:#fff}.card{box-shadow:none}}
+</style>
+</head>
+
+<body x-data="app()" x-init="init()">
+
+<!-- ═══════════════ HOME ═══════════════ -->
+<div x-show="page==='home'" x-transition class="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+  <div class="text-center max-w-3xl mx-auto fade-in">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#e9e4f5] bg-[#f3eefb] text-sm text-[#5d5878] mb-8">
+      <svg class="w-4 h-4 text-[#a78bfa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      AI-оценка бизнеса · Уровень Big4
+    </div>
+    <h1 class="text-5xl md:text-6xl font-black mb-6 leading-tight">
+      <span class="text-[#363150]">Сколько стоит</span><br>
+      <span class="gradient-text">твой бизнес?</span>
+    </h1>
+    <p class="text-lg text-[#5d5878] mb-10 max-w-2xl mx-auto leading-relaxed">
+      Загрузите данные о действующем бизнесе и получите профессиональную оценку стоимости в формате Big4 — с расчётом по трём подходам, мультипликаторами и планом роста стоимости
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-3 mb-14">
+      <button @click="page='form'; step=1" class="btn-primary text-lg px-10 py-4">Оценить бизнес</button>
+      <button @click="loadDemo()" class="btn-secondary text-lg px-8 py-4 inline-flex items-center gap-2">
+        <span>🏢</span> Демо: IT-компания
+      </button>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+      <div class="card p-4 text-center"><div class="text-2xl font-bold text-[#363150]">3</div><div class="text-xs text-[#8884a3] mt-1">подхода к оценке</div></div>
+      <div class="card p-4 text-center"><div class="text-2xl font-bold text-[#363150]">10</div><div class="text-xs text-[#8884a3] mt-1">типов стоимости</div></div>
+      <div class="card p-4 text-center"><div class="text-2xl font-bold text-[#363150]">9</div><div class="text-xs text-[#8884a3] mt-1">факторов анализа</div></div>
+      <div class="card p-4 text-center"><div class="text-2xl font-bold text-[#363150]">любая</div><div class="text-xs text-[#8884a3] mt-1">страна и валюта</div></div>
+    </div>
+    <div class="card p-6 mt-10 max-w-2xl mx-auto flex flex-col sm:flex-row items-center gap-6 text-left">
+      <div class="shrink-0">
+        <img src="/static/gadzimurad.jpg" alt="Гаджимурад" class="w-28 h-28 rounded-2xl object-cover object-top border border-[#e4dcf3] shadow-lg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="w-28 h-28 rounded-2xl border border-[#e4dcf3] bg-[#f3eefb] items-center justify-center text-3xl font-black text-[#a78bfa]" style="display:none">Г</div>
+      </div>
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f3eefb] border border-[#e9e4f5] text-xs text-[#5d5878] mb-3">
+          <svg class="w-3.5 h-3.5 text-[#a78bfa]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Эксперт по M&amp;A и оценке бизнеса
+        </div>
+        <h3 class="text-2xl font-bold text-[#363150] mb-1">Гаджимурад</h3>
+        <p class="text-[#5d5878] leading-relaxed">Эксперт по сделкам слияния и поглощения (M&amp;A). Оценка бизнеса, инвестиционный анализ и сопровождение сделок по продаже бизнеса.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ FORM ═══════════════ -->
+<div x-show="page==='form'" x-transition class="min-h-screen py-8 px-4">
+  <div class="max-w-3xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <button @click="page='home'" class="btn-secondary py-2 px-4 text-sm">← Назад</button>
+      <div class="text-sm text-[#8884a3]">Шаг <span class="font-semibold text-[#363150]" x-text="step"></span> из 8</div>
+    </div>
+
+    <!-- API Key -->
+    <div class="card p-4 mb-6 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+      <div class="flex-1">
+        <label class="block text-xs text-[#8884a3] mb-1">API ключ Anthropic <a href="https://console.anthropic.com" target="_blank" class="text-[#a78bfa] hover:underline">console.anthropic.com</a></label>
+        <input type="password" x-model="apiKey" @input="localStorage.setItem('_api_key', apiKey)" class="input-field text-sm py-2" placeholder="sk-ant-api03-...">
+      </div>
+      <div class="text-xs text-[#aba5c4] shrink-0 sm:mt-5">Ключ хранится в браузере</div>
+    </div>
+
+    <!-- Progress -->
+    <div class="flex items-center mb-8">
+      <template x-for="i in 8" :key="i">
+        <div class="flex items-center" :class="i < 8 ? 'flex-1' : ''">
+          <div class="progress-dot" :class="i < step ? 'completed' : i === step ? 'active' : 'pending'" x-text="i < step ? '✓' : i"></div>
+          <div x-show="i < 8" class="progress-line" :class="i < step ? 'done' : 'undone'"></div>
+        </div>
+      </template>
+    </div>
+
+    <!-- STEP 1 -->
+    <div x-show="step===1" x-transition class="fade-in">
+      <h2 class="text-2xl font-bold text-[#363150] mb-1">Основная информация</h2>
+      <p class="text-[#8884a3] mb-6">Базовые данные о компании и запрашиваемая цена</p>
+      <div class="space-y-4">
+        <div><label class="block text-sm text-[#5d5878] mb-2">Название компании *</label><input type="text" x-model="form.basic.name" class="input-field" placeholder="ООО «Ромашка» / Компания Иванова"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label class="block text-sm text-[#5d5878] mb-2">Страна *</label><input type="text" x-model="form.basic.country" class="input-field" placeholder="Россия / ОАЭ / Казахстан"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Город</label><input type="text" x-model="form.basic.city" class="input-field" placeholder="Москва"></div>
+        </div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Отрасль / сфера деятельности *</label><input type="text" x-model="form.basic.industry" class="input-field" placeholder="IT-услуги / Розничная торговля / Производство / HoReCa..."></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Краткое описание деятельности *</label><textarea x-model="form.basic.description" class="input-field" rows="3" placeholder="Что делает компания, для кого, как давно, основные продукты/услуги..."></textarea></div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div><label class="block text-sm text-[#5d5878] mb-2">ОПФ</label><input type="text" x-model="form.basic.legal_form" class="input-field" placeholder="ООО / АО / ИП"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Год основания</label><input type="text" x-model="form.basic.founded_year" class="input-field" placeholder="2017"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Сотрудников</label><input type="text" x-model="form.basic.employees" class="input-field" placeholder="25"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-[#5d5878] mb-2">Валюта оценки</label>
+            <select x-model="form.basic.currency" class="input-field">
+              <option value="RUB">₽ Рубль (RUB)</option>
+              <option value="USD">$ Доллар (USD)</option>
+              <option value="EUR">€ Евро (EUR)</option>
+              <option value="KZT">₸ Тенге (KZT)</option>
+              <option value="AED">AED Дирхам</option>
+              <option value="GBP">£ Фунт (GBP)</option>
+              <option value="CNY">¥ Юань (CNY)</option>
+            </select>
+          </div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Запрашиваемая цена <span class="text-[#aba5c4]">(если есть)</span></label><input type="text" x-model="form.basic.asking_price" class="input-field" placeholder="45000000"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div x-show="step===2" x-transition class="fade-in">
+      <h2 class="text-2xl font-bold text-[#363150] mb-1">Финансовые показатели</h2>
+      <p class="text-[#8884a3] mb-6">Введите цифры в валюте оценки без пробелов</p>
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div><label class="block text-sm text-[#5d5878] mb-2">Выручка (последний год) *</label><input type="text" x-model="form.finances.revenue_cur" class="input-field" placeholder="28000000"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Выручка (год -1)</label><input type="text" x-model="form.finances.revenue_1" class="input-field" placeholder="22000000"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Выручка (год -2)</label><input type="text" x-model="form.finances.revenue_2" class="input-field" placeholder="17000000"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label class="block text-sm text-[#5d5878] mb-2">Валовая прибыль / маржа</label><input type="text" x-model="form.finances.gross_profit" class="input-field" placeholder="65% или 18200000"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">EBITDA *</label><input type="text" x-model="form.finances.ebitda" class="input-field" placeholder="6000000"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label class="block text-sm text-[#5d5878] mb-2">Чистая прибыль</label><input type="text" x-model="form.finances.net_profit" class="input-field" placeholder="4500000"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Операционный денежный поток</label><input type="text" x-model="form.finances.cash_flow" class="input-field" placeholder="5200000"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div><label class="block text-sm text-[#5d5878] mb-2">Долг (кредиты, займы)</label><input type="text" x-model="form.finances.debt" class="input-field" placeholder="2000000 или нет"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Дебиторка</label><input type="text" x-model="form.finances.receivables" class="input-field" placeholder="3500000"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Кредиторка</label><input type="text" x-model="form.finances.payables" class="input-field" placeholder="1200000"></div>
+        </div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Прочее (налоги, нераспределённая прибыль, особенности)</label><textarea x-model="form.finances.other_financial" class="input-field" rows="2" placeholder="ОСНО, налоги уплачены, нераспределённая прибыль 8 млн..."></textarea></div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div x-show="step===3" x-transition class="fade-in">
+      <h2 class="text-2xl font-bold text-[#363150] mb-1">Активы компании</h2>
+      <p class="text-[#8884a3] mb-6">Опишите что входит в бизнес — имущество, техника, IP</p>
+      <div class="space-y-4">
+        <div><label class="block text-sm text-[#5d5878] mb-2">Недвижимость</label><textarea x-model="form.assets.real_estate" class="input-field" rows="2" placeholder="Офис в собственности 300 кв.м. / аренда 250 кв.м. центр Москвы 600 тыс./мес. / 2 склада 1200 кв.м. собственность оценка 15 млн..."></textarea></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Оборудование и техника</label><textarea x-model="form.assets.equipment" class="input-field" rows="2" placeholder="Линия производства 2021г. остаточная стоимость 12 млн / рабочие станции 22 шт. ~3 млн..."></textarea></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label class="block text-sm text-[#5d5878] mb-2">Транспорт</label><input type="text" x-model="form.assets.transport" class="input-field" placeholder="3 автомобиля 2020-2022г. ~4 млн"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Товарные остатки</label><input type="text" x-model="form.assets.inventory" class="input-field" placeholder="8 млн по себестоимости / нет"></div>
+        </div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Интеллектуальная собственность (патенты, торговые марки, лицензии)</label><textarea x-model="form.assets.ip" class="input-field" rows="2" placeholder="Зарегистрированный товарный знак / 2 патента / исключительные лицензии / нет..."></textarea></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">ПО и IT-системы</label><textarea x-model="form.assets.software" class="input-field" rows="2" placeholder="Собственная CRM / ERP 1С / SaaS-платформа / нет..."></textarea></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Прочие активы</label><input type="text" x-model="form.assets.other_assets" class="input-field" placeholder="База знаний, клиентская база, фотоматериалы..."></div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div x-show="step===4" x-transition class="fade-in">
+      <h2 class="text-2xl font-bold text-[#363150] mb-1">Бизнес-модель</h2>
+      <p class="text-[#8884a3] mb-6">Как устроен доход, насколько бизнес зависит от вас</p>
+      <div class="space-y-4">
+        <div><label class="block text-sm text-[#5d5878] mb-2">Источники дохода *</label><textarea x-model="form.model.revenue_sources" class="input-field" rows="3" placeholder="60% — разовые проекты, 40% — ежемесячные контракты на сопровождение / Розничные продажи 70%, оптовые 30%..."></textarea></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label class="block text-sm text-[#5d5878] mb-2">Доля повторных/регулярных продаж (%)</label><input type="text" x-model="form.model.recurring_pct" class="input-field" placeholder="40"></div>
+          <div>
+            <label class="block text-sm text-[#5d5878] mb-2">Зависимость от собственника: <span class="font-semibold text-[#363150]" x-text="form.model.owner_dependency"></span>/10</label>
+            <input type="range" min="0" max="10" x-model="form.model.owner_dependency" class="w-full accent-violet-500 mt-2">
+            <div class="flex justify-between text-xs text-[#aba5c4] mt-1"><span>0 — нет</span><span>10 — критическая</span></div>
+          </div>
+        </div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Сезонность</label><input type="text" x-model="form.model.seasonality" class="input-field" placeholder="Q4 сильнее на 30% / равномерная / летний пик..."></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Долгосрочные контракты</label><textarea x-model="form.model.contracts" class="input-field" rows="2" placeholder="6 контрактов на сопровождение ~10 млн/год, срок 1-2 года / нет долгосрочных..."></textarea></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Масштабируемость</label><input type="text" x-model="form.model.scalability" class="input-field" placeholder="Ограниченная (зависит от людей) / Высокая (SaaS) / Умеренная..."></div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div x-show="step===5" x-transition class="fade-in">
+      <h2 class="text-2xl font-bold text-[#363150] mb-1">Клиенты и рынок</h2>
+      <p class="text-[#8884a3] mb-6">Качество клиентской базы и позиция на рынке</p>
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div><label class="block text-sm text-[#5d5878] mb-2">Активных клиентов</label><input type="text" x-model="form.customers.clients_count" class="input-field" placeholder="18 / 350 / 5 000"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Доля крупнейшего клиента (%)</label><input type="text" x-model="form.customers.top1_pct" class="input-field" placeholder="28"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Доля топ-5 клиентов (%)</label><input type="text" x-model="form.customers.top5_pct" class="input-field" placeholder="71"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><label class="block text-sm text-[#5d5878] mb-2">Средний чек / контракт</label><input type="text" x-model="form.customers.avg_check" class="input-field" placeholder="800 000 — 3 000 000 / 5 000 за заказ"></div>
+          <div><label class="block text-sm text-[#5d5878] mb-2">Ежегодный отток клиентов (%)</label><input type="text" x-model="form.customers.churn" class="input-field" placeholder="12"></div>
+        </div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Описание рынка *</label><textarea x-model="form.customers.market_desc" class="input-field" rows="3" placeholder="Российский рынок IT-аутсорсинга, объём 400+ млрд руб./год. Быстрый рост после 2022 года из-за импортозамещения..."></textarea></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Доля рынка компании</label><input type="text" x-model="form.customers.market_share" class="input-field" placeholder="0.01% / около 5% регионального рынка / ТОП-10 в нише"></div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div x-show="step===6" x-transition class="fade-in">
+      <h2 class="text-2xl font-bold text-[#363150] mb-1">Конкурентная среда</h2>
+      <p class="text-[#8884a3] mb-6">Кто ваши конкуренты и в чём ваше преимущество</p>
+      <div class="space-y-4">
+        <div><label class="block text-sm text-[#5d5878] mb-2">Основные конкуренты</label><textarea x-model="form.competition.competitors" class="input-field" rows="2" placeholder="Крупные IT-интеграторы (Softline, EPAM), 200+ средних аутсорсеров, фриланс-команды..."></textarea></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Уникальные конкурентные преимущества *</label><textarea x-model="form.competition.advantages" class="input-field" rows="3" placeholder="Глубокая экспертиза в промышленной автоматизации, собственная платформа, долгосрочные отношения с клиентами с 2017г..."></textarea></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Барьеры входа для новых игроков</label><input type="text" x-model="form.competition.barriers" class="input-field" placeholder="Высокие (регуляторные / технологические) / Низкие / Умеренные"></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Позиция на рынке</label><input type="text" x-model="form.competition.market_position" class="input-field" placeholder="Лидер в нише / Один из многих / Нишевый игрок в промышленном сегменте"></div>
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div x-show="step===7" x-transition class="fade-in">
+      <h2 class="text-2xl font-bold text-[#363150] mb-1">Команда и управление</h2>
+      <p class="text-[#8884a3] mb-6">Качество менеджмента и зависимость от людей</p>
+      <div class="space-y-4">
+        <div><label class="block text-sm text-[#5d5878] mb-2">Описание управленческой команды</label><textarea x-model="form.team.mgmt_description" class="input-field" rows="3" placeholder="CEO — основатель, 15 лет опыта. CTO — соучредитель. Команда 22 чел.: 16 разработчиков, 3 PM, 2 продажи, 1 бухгалтер..."></textarea></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Зависимость от ключевых людей</label><textarea x-model="form.team.key_person_risk" class="input-field" rows="2" placeholder="Высокая зависимость от CEO и CTO. Уход любого из них критичен для бизнеса..."></textarea></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Есть ли преемник / замена ключевым людям?</label><input type="text" x-model="form.team.succession" class="input-field" placeholder="Нет / Есть операционный директор / CEO готов обучить преемника за 6 мес."></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Качество управленческой структуры</label><input type="text" x-model="form.team.structure" class="input-field" placeholder="Плоская структура, процессы не формализованы / Чёткие регламенты, CRM, KPI для всех..."></div>
+      </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div x-show="step===8" x-transition class="fade-in">
+      <h2 class="text-2xl font-bold text-[#363150] mb-1">Риски и дополнительно</h2>
+      <p class="text-[#8884a3] mb-6">Юридические риски, причина продажи, дополнительные данные</p>
+      <div class="space-y-4">
+        <div><label class="block text-sm text-[#5d5878] mb-2">Юридические риски / текущие споры</label><input type="text" x-model="form.additional.legal_risks" class="input-field" placeholder="Судебных споров нет / Иск от поставщика на 500 тыс. (оспаривается)..."></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Налоговые риски</label><input type="text" x-model="form.additional.tax_risks" class="input-field" placeholder="Проверок не было / Камеральная проверка 2023 — без нарушений / ОСНО, НДС..."></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Причина продажи *</label><input type="text" x-model="form.additional.sale_reason" class="input-field" placeholder="Переезд за рубеж / Хочу выйти из операционки / Нужны инвестиции / Смена направления..."></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Описание имеющихся документов</label><textarea x-model="form.additional.documents" class="input-field" rows="2" placeholder="Финансовая отчётность за 3 года, управленческий P&L, договоры с клиентами, штатное расписание..."></textarea></div>
+        <div><label class="block text-sm text-[#5d5878] mb-2">Дополнительная информация <span class="text-[#aba5c4]">(конкуренты, аналогичные сделки, инвест. меморандум, ссылки)</span></label><textarea x-model="form.additional.additional" class="input-field" rows="4" placeholder="Любая дополнительная информация: данные о сделках купли-продажи аналогичных компаний, информация о рынке, ссылки на конкурентов, описание объектов, фотографии, инвестиционный меморандум..."></textarea></div>
+      </div>
+    </div>
+
+    <!-- Navigation buttons -->
+    <div class="flex justify-between mt-8 gap-4">
+      <button @click="step > 1 ? step-- : page='home'" class="btn-secondary px-8">← Назад</button>
+      <div class="flex gap-3">
+        <template x-if="step < 8">
+          <button @click="step++" class="btn-primary px-8">Далее →</button>
+        </template>
+        <template x-if="step === 8">
+          <button @click="analyze()" :disabled="analyzing" class="btn-primary px-8" x-text="analyzing ? 'Запуск...' : 'Оценить бизнес →'"></button>
+        </template>
+      </div>
+    </div>
+
+    <div x-show="error" class="mt-4 p-4 rounded-12 bg-red-50 border border-red-200 text-red-700 text-sm" x-text="error"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ LOADING ═══════════════ -->
+<div x-show="page==='loading'" x-transition class="min-h-screen flex flex-col items-center justify-center px-4">
+  <div class="text-center max-w-sm mx-auto">
+    <div class="w-20 h-20 mx-auto mb-8 rounded-full border-4 border-[#ede9fe] border-t-[#a78bfa] spin"></div>
+    <h2 class="text-2xl font-bold text-[#363150] mb-3">Формируем оценку</h2>
+    <p class="text-[#8884a3] text-sm leading-relaxed mb-6 pulse" x-text="loadingMsg"></p>
+    <div class="card p-4 text-left text-sm text-[#5d5878] space-y-2">
+      <div class="flex items-center gap-2"><span class="text-[#a78bfa]">✓</span> Анализ отрасли и страны</div>
+      <div class="flex items-center gap-2"><span class="text-[#a78bfa]">✓</span> Затратный подход</div>
+      <div class="flex items-center gap-2"><span class="text-[#a78bfa] pulse">⋯</span> Рыночные мультипликаторы и сравнительный подход</div>
+      <div class="flex items-center gap-2 text-[#aba5c4]"><span>◯</span> Доходный подход и риски</div>
+      <div class="flex items-center gap-2 text-[#aba5c4]"><span>◯</span> Итоговое заключение</div>
+    </div>
+    <p class="text-xs text-[#aba5c4] mt-6">Обычно занимает 30–60 секунд</p>
+  </div>
+</div>
+
+<!-- ═══════════════ RESULTS ═══════════════ -->
+<div x-show="page==='results'" x-transition class="min-h-screen py-8 px-4">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Results header -->
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+      <button @click="page='form'" class="btn-secondary py-2 px-4 text-sm">← Изменить данные</button>
+      <div class="flex items-center gap-3">
+        <span class="text-sm text-[#8884a3]" x-text="result?.business_name"></span>
+        <span :class="confClass(result?.analysis_confidence)" x-text="confLabel(result?.analysis_confidence)"></span>
+      </div>
+    </div>
+
+    <!-- Main verdict + market value card -->
+    <div class="card p-6 mb-6 fade-in" :class="verdictCard(result?.verdict)">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider opacity-70 mb-2">Рыночная стоимость бизнеса</div>
+          <div class="text-4xl md:text-5xl font-black mb-1" x-text="fmtM(result?.valuations?.market?.amount)"></div>
+          <div class="text-sm opacity-75" x-text="result?.valuations?.market?.comment"></div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="text-2xl font-black mb-1" x-text="result?.verdict_label || '—'"></div>
+          <template x-if="result?.asking_price_assessment?.asking_price > 0">
+            <div class="text-sm opacity-75">
+              Цена продавца: <span class="font-semibold" x-text="fmtM(result.asking_price_assessment.asking_price)"></span>
+              <span x-text="' (' + (result.asking_price_assessment.vs_market_pct || 0) + '% от рынка)'"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+      <div class="mt-4 text-sm opacity-80" x-text="result?.verdict_reason"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-1 overflow-x-auto pb-1 mb-6 flex-wrap">
+      <button @click="tab='valuation'" :class="tab==='valuation'?'tab-btn active':'tab-btn'">💰 Стоимость</button>
+      <button @click="tab='methodology'" :class="tab==='methodology'?'tab-btn active':'tab-btn'">📐 Методология</button>
+      <button @click="tab='analysis'" :class="tab==='analysis'?'tab-btn active':'tab-btn'">📊 Анализ</button>
+      <button @click="tab='risks'" :class="tab==='risks'?'tab-btn active':'tab-btn'">⚠️ Риски</button>
+      <button @click="tab='growth'" :class="tab==='growth'?'tab-btn active':'tab-btn'">🚀 Рост стоимости</button>
+    </div>
+
+    <!-- ── TAB: СТОИМОСТЬ ── -->
+    <div x-show="tab==='valuation'" class="space-y-6 fade-in">
+
+      <!-- All 10 valuations -->
+      <div class="card p-5">
+        <h3 class="font-bold text-[#363150] mb-4">Все типы стоимости</h3>
+        <div class="space-y-2">
+          <template x-for="row in valuationRows()" :key="row.key">
+            <div class="flex items-center justify-between gap-4 py-2 border-b border-[#f3eefb] last:border-0">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="text-base shrink-0" x-text="row.icon"></span>
+                <div class="min-w-0">
+                  <div class="text-sm font-medium text-[#363150] truncate" x-text="row.label"></div>
+                  <div class="text-xs text-[#8884a3] truncate" x-text="row.comment"></div>
+                </div>
+              </div>
+              <div class="shrink-0 text-right">
+                <span class="font-bold text-[#363150] text-sm" x-text="row.amount"></span>
+              </div>
+            </div>
+          </template>
+          <!-- Probable range -->
+          <div class="pt-3 mt-2 border-t-2 border-[#ede9fe]">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-semibold text-[#363150]">Вероятный диапазон сделки</span>
+              <span class="font-bold text-[#7c3aed]" x-text="fmtM(result?.valuations?.probable_deal_min) + ' — ' + fmtM(result?.valuations?.probable_deal_max)"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Valuation Chart -->
+      <div class="card p-5">
+        <h3 class="font-bold text-[#363150] mb-4">Сравнение оценок</h3>
+        <canvas id="valuationChart" height="200"></canvas>
+      </div>
+
+      <!-- Sale Probabilities -->
+      <div class="card p-5">
+        <h3 class="font-bold text-[#363150] mb-4">Вероятности</h3>
+        <div>
+          <template x-for="pr in probRows()" :key="pr.key">
+            <div class="prob-row">
+              <div class="text-sm text-[#514c6b] flex-1" x-text="pr.label"></div>
+              <div class="w-32 shrink-0">
+                <div class="meter-bg">
+                  <div class="meter-fill" :style="'width:' + (pr.val||0) + '%;background:' + probColor(pr.val)"></div>
+                </div>
+              </div>
+              <div class="text-sm font-bold shrink-0 w-10 text-right" x-text="(pr.val||0) + '%'"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="card p-5 bg-[#faf8fe]">
+        <div class="text-xs font-semibold uppercase tracking-wider text-[#8884a3] mb-2">Резюме оценки</div>
+        <p class="text-[#514c6b] leading-relaxed" x-text="result?.analysis_summary"></p>
+      </div>
+    </div>
+
+    <!-- ── TAB: МЕТОДОЛОГИЯ ── -->
+    <div x-show="tab==='methodology'" class="space-y-5 fade-in">
+      <div class="card p-5">
+        <h3 class="font-bold text-[#363150] mb-1">Взвешенный результат</h3>
+        <p class="text-xs text-[#8884a3] mb-4">Итоговая оценка получена как взвешенное среднее трёх подходов</p>
+        <div class="grid grid-cols-3 gap-3 mb-6">
+          <div class="text-center p-3 rounded-12 bg-[#f3eefb]">
+            <div class="text-xl font-black text-[#7c3aed]" x-text="(result?.valuation_methods?.cost_approach?.weight_pct||0) + '%'"></div>
+            <div class="text-xs text-[#8884a3] mt-1">Затратный</div>
+          </div>
+          <div class="text-center p-3 rounded-12 bg-[#f3eefb]">
+            <div class="text-xl font-black text-[#7c3aed]" x-text="(result?.valuation_methods?.comparative_approach?.weight_pct||0) + '%'"></div>
+            <div class="text-xs text-[#8884a3] mt-1">Сравнительный</div>
+          </div>
+          <div class="text-center p-3 rounded-12 bg-[#f3eefb]">
+            <div class="text-xl font-black text-[#7c3aed]" x-text="(result?.valuation_methods?.income_approach?.weight_pct||0) + '%'"></div>
+            <div class="text-xs text-[#8884a3] mt-1">Доходный</div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between bg-[#ede9fe] rounded-12 p-4">
+          <span class="font-semibold text-[#363150]">Взвешенный результат</span>
+          <span class="text-2xl font-black text-[#7c3aed]" x-text="fmtM(result?.valuation_methods?.weighted_result)"></span>
+        </div>
+      </div>
+
+      <!-- Cost approach -->
+      <div class="method-block">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="method-weight" x-text="(result?.valuation_methods?.cost_approach?.weight_pct||0) + '%'"></div>
+          <div>
+            <div class="font-bold text-[#363150]">Затратный подход</div>
+            <div class="text-xs text-[#8884a3]">Стоимость чистых активов и восстановительная стоимость</div>
+          </div>
+          <div class="ml-auto font-black text-[#363150] text-lg" x-text="fmtM(result?.valuation_methods?.cost_approach?.result)"></div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+          <div class="bg-white rounded-10 p-3 border border-[#ece7f7] text-center">
+            <div class="text-xs text-[#8884a3] mb-1">Чистые активы</div>
+            <div class="font-bold text-[#363150] text-sm" x-text="fmtM(result?.valuation_methods?.cost_approach?.net_assets)"></div>
+          </div>
+          <div class="bg-white rounded-10 p-3 border border-[#ece7f7] text-center">
+            <div class="text-xs text-[#8884a3] mb-1">Восстановит. ст-сть</div>
+            <div class="font-bold text-[#363150] text-sm" x-text="fmtM(result?.valuation_methods?.cost_approach?.replacement_cost)"></div>
+          </div>
+          <div class="bg-white rounded-10 p-3 border border-[#ece7f7] text-center">
+            <div class="text-xs text-[#8884a3] mb-1">Нематериальные</div>
+            <div class="font-bold text-[#363150] text-sm" x-text="fmtM(result?.valuation_methods?.cost_approach?.intangibles)"></div>
+          </div>
+        </div>
+        <p class="text-xs text-[#7c7799] bg-white rounded-10 p-3 border border-[#ece7f7]" x-text="result?.valuation_methods?.cost_approach?.comment"></p>
+      </div>
+
+      <!-- Comparative approach -->
+      <div class="method-block">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="method-weight" x-text="(result?.valuation_methods?.comparative_approach?.weight_pct||0) + '%'"></div>
+          <div>
+            <div class="font-bold text-[#363150]">Сравнительный подход</div>
+            <div class="text-xs text-[#8884a3]">Рыночные мультипликаторы и аналогичные сделки</div>
+          </div>
+          <div class="ml-auto font-black text-[#363150] text-lg" x-text="fmtM(result?.valuation_methods?.comparative_approach?.result)"></div>
+        </div>
+        <div class="bg-white rounded-10 border border-[#ece7f7] overflow-hidden mb-3">
+          <div class="mult-row px-3 bg-[#faf8fe]">
+            <div class="text-xs font-semibold text-[#8884a3]">Мультипликатор</div>
+            <div class="text-xs font-semibold text-[#8884a3] text-right">Значение</div>
+            <div class="text-xs font-semibold text-[#8884a3] text-right">Диапазон</div>
+            <div class="text-xs font-semibold text-[#8884a3] text-right">Оценка</div>
+          </div>
+          <div class="mult-row px-3">
+            <div class="text-sm font-medium text-[#363150]">EV/EBITDA</div>
+            <div class="text-sm text-right" x-text="result?.valuation_methods?.comparative_approach?.ev_ebitda?.multiple + 'x'"></div>
+            <div class="text-xs text-[#8884a3] text-right" x-text="result?.valuation_methods?.comparative_approach?.ev_ebitda?.industry_range"></div>
+            <div class="text-sm font-semibold text-right" x-text="fmtM(result?.valuation_methods?.comparative_approach?.ev_ebitda?.result)"></div>
+          </div>
+          <div class="mult-row px-3">
+            <div class="text-sm font-medium text-[#363150]">EV/Sales</div>
+            <div class="text-sm text-right" x-text="result?.valuation_methods?.comparative_approach?.ev_sales?.multiple + 'x'"></div>
+            <div class="text-xs text-[#8884a3] text-right" x-text="result?.valuation_methods?.comparative_approach?.ev_sales?.industry_range"></div>
+            <div class="text-sm font-semibold text-right" x-text="fmtM(result?.valuation_methods?.comparative_approach?.ev_sales?.result)"></div>
+          </div>
+          <div class="mult-row px-3" style="border-bottom:none">
+            <div class="text-sm font-medium text-[#363150]">P/E</div>
+            <div class="text-sm text-right" x-text="result?.valuation_methods?.comparative_approach?.price_earnings?.multiple + 'x'"></div>
+            <div class="text-xs text-[#8884a3] text-right" x-text="result?.valuation_methods?.comparative_approach?.price_earnings?.industry_range"></div>
+            <div class="text-sm font-semibold text-right" x-text="fmtM(result?.valuation_methods?.comparative_approach?.price_earnings?.result)"></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-10 p-3 border border-[#ece7f7] mb-3">
+          <div class="text-xs font-semibold text-[#8884a3] mb-1">Сделки M&A (транзакционные аналоги)</div>
+          <div class="text-sm text-[#363150]" x-text="result?.valuation_methods?.comparative_approach?.transactions?.comment"></div>
+          <div class="text-sm font-semibold text-[#7c3aed] mt-1" x-text="fmtM(result?.valuation_methods?.comparative_approach?.transactions?.result)"></div>
+        </div>
+        <p class="text-xs text-[#7c7799] bg-white rounded-10 p-3 border border-[#ece7f7]" x-text="result?.valuation_methods?.comparative_approach?.comment"></p>
+      </div>
+
+      <!-- Income approach -->
+      <div class="method-block">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="method-weight" x-text="(result?.valuation_methods?.income_approach?.weight_pct||0) + '%'"></div>
+          <div>
+            <div class="font-bold text-[#363150]">Доходный подход</div>
+            <div class="text-xs text-[#8884a3]">Нормализованный FCF и ставка дисконтирования</div>
+          </div>
+          <div class="ml-auto font-black text-[#363150] text-lg" x-text="fmtM(result?.valuation_methods?.income_approach?.result)"></div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+          <div class="bg-white rounded-10 p-3 border border-[#ece7f7] text-center">
+            <div class="text-xs text-[#8884a3] mb-1">Норм. EBITDA</div>
+            <div class="font-bold text-[#363150] text-sm" x-text="fmtM(result?.valuation_methods?.income_approach?.normalized_ebitda)"></div>
+          </div>
+          <div class="bg-white rounded-10 p-3 border border-[#ece7f7] text-center">
+            <div class="text-xs text-[#8884a3] mb-1">Норм. FCF</div>
+            <div class="font-bold text-[#363150] text-sm" x-text="fmtM(result?.valuation_methods?.income_approach?.normalized_fcf)"></div>
+          </div>
+          <div class="bg-white rounded-10 p-3 border border-[#ece7f7] text-center">
+            <div class="text-xs text-[#8884a3] mb-1">Ставка дискон.</div>
+            <div class="font-bold text-[#363150] text-sm" x-text="(result?.valuation_methods?.income_approach?.discount_rate_pct||0) + '%'"></div>
+          </div>
+        </div>
+        <p class="text-xs text-[#7c7799] bg-white rounded-10 p-3 border border-[#ece7f7]" x-text="result?.valuation_methods?.income_approach?.comment"></p>
+      </div>
+    </div>
+
+    <!-- ── TAB: АНАЛИЗ ── -->
+    <div x-show="tab==='analysis'" class="space-y-5 fade-in">
+      <!-- Radar chart -->
+      <div class="card p-5">
+        <h3 class="font-bold text-[#363150] mb-4">Профиль факторов стоимости</h3>
+        <div class="max-w-sm mx-auto"><canvas id="radarChart" height="280"></canvas></div>
+      </div>
+
+      <!-- 8 area cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <template x-for="area in areaCards()" :key="area.key">
+          <div class="area-card">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-lg" x-text="area.icon"></span>
+                <span class="font-semibold text-[#363150] text-sm" x-text="area.label"></span>
+              </div>
+              <div class="score-label" :style="'color:' + scoreColor(area.score)" x-text="area.score"></div>
+            </div>
+            <div class="meter-bg mb-2">
+              <div class="meter-fill" :style="'width:' + area.score + '%;background:' + scoreColor(area.score)"></div>
+            </div>
+            <p class="text-xs text-[#7c7799] leading-relaxed" x-text="area.comment"></p>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- ── TAB: РИСКИ ── -->
+    <div x-show="tab==='risks'" class="space-y-5 fade-in">
+
+      <!-- Risk matrix -->
+      <div class="card p-5">
+        <h3 class="font-bold text-[#363150] mb-4">Карта рисков</h3>
+        <div class="space-y-2">
+          <template x-for="r in (result?.risks || [])" :key="r.category">
+            <div class="risk-row">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-medium text-[#363150] text-sm" x-text="r.category"></span>
+                <span class="badge" :class="levelBadge(r.level)" x-text="r.level"></span>
+              </div>
+              <div class="flex gap-4 mb-2">
+                <div class="flex-1">
+                  <div class="text-xs text-[#8884a3] mb-1">Вероятность</div>
+                  <div class="meter-bg"><div class="meter-fill bg-[#a78bfa]" :style="'width:' + r.probability + '%'"></div></div>
+                </div>
+                <div class="flex-1">
+                  <div class="text-xs text-[#8884a3] mb-1">Влияние</div>
+                  <div class="meter-bg"><div class="meter-fill" :style="'width:' + r.impact + '%;background:' + riskImpactColor(r.impact)"></div></div>
+                </div>
+                <div class="text-xs text-[#363150] font-semibold w-16 text-right pt-4" x-text="r.probability + '% / ' + r.impact + '%'"></div>
+              </div>
+              <p class="text-xs text-[#7c7799]" x-text="r.description"></p>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Red flags -->
+      <div class="card p-5">
+        <h3 class="font-bold text-[#363150] mb-4">Красные флаги</h3>
+        <div class="space-y-3">
+          <template x-for="f in (result?.red_flags || [])" :key="f.title">
+            <div class="p-4 rounded-12 border" :class="flagCard(f.severity)">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="badge" :class="levelBadge(f.severity)" x-text="f.severity"></span>
+                <span class="font-semibold text-sm text-[#363150]" x-text="f.title"></span>
+              </div>
+              <p class="text-xs text-[#514c6b] mb-2" x-text="f.description"></p>
+              <div class="flex items-start gap-1.5 text-xs text-[#7c7799]">
+                <span class="text-[#a78bfa] shrink-0 mt-0.5">→</span>
+                <span x-text="f.recommendation"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Value drivers + destroyers -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="card p-5">
+          <h3 class="font-bold text-[#363150] mb-3">Драйверы стоимости</h3>
+          <template x-for="d in (result?.value_drivers || [])" :key="d.title">
+            <div class="driver-card" :class="'driver-' + (d.impact||'low').toLowerCase()">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="badge badge-green text-xs" x-text="d.impact"></span>
+                <span class="font-semibold text-sm text-[#363150]" x-text="d.title"></span>
+              </div>
+              <p class="text-xs text-[#7c7799]" x-text="d.description"></p>
+            </div>
+          </template>
+        </div>
+        <div class="card p-5">
+          <h3 class="font-bold text-[#363150] mb-3">Разрушители стоимости</h3>
+          <template x-for="d in (result?.value_destroyers || [])" :key="d.title">
+            <div class="destroyer-card" :class="'destroyer-' + (d.severity||'medium').toLowerCase()">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="badge badge-high text-xs" x-text="d.severity"></span>
+                <span class="font-semibold text-sm text-[#363150]" x-text="d.title"></span>
+              </div>
+              <p class="text-xs text-[#7c7799]" x-text="d.description"></p>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Investment attractiveness -->
+      <div class="card p-5">
+        <h3 class="font-bold text-[#363150] mb-3">Инвестиционная привлекательность</h3>
+        <div class="flex items-center gap-3 mb-3">
+          <span class="badge text-base px-4 py-1" :class="attrBadge(result?.investment_attractiveness?.level)" x-text="result?.investment_attractiveness?.level"></span>
+          <span class="text-sm text-[#514c6b]" x-text="result?.investment_attractiveness?.ideal_buyer"></span>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <template x-for="bt in (result?.investment_attractiveness?.buyer_types || [])" :key="bt">
+            <span class="badge badge-blue" x-text="bt"></span>
+          </template>
+        </div>
+        <p class="text-sm text-[#7c7799]" x-text="result?.investment_attractiveness?.comment"></p>
+      </div>
+    </div>
+
+    <!-- ── TAB: РОСТ ── -->
+    <div x-show="tab==='growth'" class="space-y-5 fade-in">
+      <div class="card p-5 bg-[#faf8fe]">
+        <p class="text-sm text-[#514c6b] leading-relaxed">
+          Ниже представлен конкретный пошаговый план действий для увеличения стоимости бизнеса на <strong>20%, 50% и 100%</strong>
+          в ближайшие 12–36 месяцев. Каждый шаг содержит конкретное действие, ожидаемый эффект и ориентировочную стоимость реализации.
+        </p>
+      </div>
+
+      <!-- +20% -->
+      <div class="card overflow-hidden">
+        <button @click="growthOpen = growthOpen === '20' ? null : '20'" class="w-full p-5 flex items-center justify-between text-left hover:bg-[#faf8fe] transition-colors">
+          <div class="flex items-center gap-4">
+            <div class="growth-target w-16 h-16 flex flex-col items-center justify-center rounded-12 growth-20 shrink-0">
+              <div class="font-black text-[#065f46]">+20%</div>
+            </div>
+            <div>
+              <div class="font-bold text-[#363150]">Увеличить стоимость на 20%</div>
+              <div class="text-sm text-[#8884a3]">
+                Цель: <span class="font-semibold text-[#059669]" x-text="fmtM(result?.growth_plan?.increase_20pct?.target_value)"></span>
+                · <span x-text="result?.growth_plan?.increase_20pct?.timeline"></span>
+              </div>
+            </div>
+          </div>
+          <span class="text-[#a78bfa] text-xl" x-text="growthOpen === '20' ? '▲' : '▼'"></span>
+        </button>
+        <div x-show="growthOpen === '20'" x-transition class="px-5 pb-5">
+          <template x-for="s in (result?.growth_plan?.increase_20pct?.steps || [])" :key="s.step">
+            <div class="step-action">
+              <div class="shrink-0 w-7 h-7 rounded-full bg-[#d1fae5] text-[#059669] text-xs font-bold flex items-center justify-center" x-text="s.step"></div>
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-sm text-[#363150] mb-1" x-text="s.action"></div>
+                <div class="text-xs text-[#7c7799] mb-1" x-text="'Эффект: ' + s.effect"></div>
+                <div class="flex gap-4 flex-wrap text-xs text-[#aba5c4]">
+                  <span x-text="'⏱ ' + s.timeline"></span>
+                  <span x-text="'💰 ' + s.cost"></span>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- +50% -->
+      <div class="card overflow-hidden">
+        <button @click="growthOpen = growthOpen === '50' ? null : '50'" class="w-full p-5 flex items-center justify-between text-left hover:bg-[#faf8fe] transition-colors">
+          <div class="flex items-center gap-4">
+            <div class="growth-target w-16 h-16 flex flex-col items-center justify-center rounded-12 growth-50 shrink-0">
+              <div class="font-black text-[#1e40af]">+50%</div>
+            </div>
+            <div>
+              <div class="font-bold text-[#363150]">Увеличить стоимость на 50%</div>
+              <div class="text-sm text-[#8884a3]">
+                Цель: <span class="font-semibold text-[#2563eb]" x-text="fmtM(result?.growth_plan?.increase_50pct?.target_value)"></span>
+                · <span x-text="result?.growth_plan?.increase_50pct?.timeline"></span>
+              </div>
+            </div>
+          </div>
+          <span class="text-[#a78bfa] text-xl" x-text="growthOpen === '50' ? '▲' : '▼'"></span>
+        </button>
+        <div x-show="growthOpen === '50'" x-transition class="px-5 pb-5">
+          <template x-for="s in (result?.growth_plan?.increase_50pct?.steps || [])" :key="s.step">
+            <div class="step-action">
+              <div class="shrink-0 w-7 h-7 rounded-full bg-[#dbeafe] text-[#2563eb] text-xs font-bold flex items-center justify-center" x-text="s.step"></div>
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-sm text-[#363150] mb-1" x-text="s.action"></div>
+                <div class="text-xs text-[#7c7799] mb-1" x-text="'Эффект: ' + s.effect"></div>
+                <div class="flex gap-4 flex-wrap text-xs text-[#aba5c4]">
+                  <span x-text="'⏱ ' + s.timeline"></span>
+                  <span x-text="'💰 ' + s.cost"></span>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- +100% -->
+      <div class="card overflow-hidden">
+        <button @click="growthOpen = growthOpen === '100' ? null : '100'" class="w-full p-5 flex items-center justify-between text-left hover:bg-[#faf8fe] transition-colors">
+          <div class="flex items-center gap-4">
+            <div class="growth-target w-16 h-16 flex flex-col items-center justify-center rounded-12 growth-100 shrink-0">
+              <div class="font-black text-[#5b21b6]">×2</div>
+            </div>
+            <div>
+              <div class="font-bold text-[#363150]">Удвоить стоимость (+100%)</div>
+              <div class="text-sm text-[#8884a3]">
+                Цель: <span class="font-semibold text-[#7c3aed]" x-text="fmtM(result?.growth_plan?.increase_100pct?.target_value)"></span>
+                · <span x-text="result?.growth_plan?.increase_100pct?.timeline"></span>
+              </div>
+            </div>
+          </div>
+          <span class="text-[#a78bfa] text-xl" x-text="growthOpen === '100' ? '▲' : '▼'"></span>
+        </button>
+        <div x-show="growthOpen === '100'" x-transition class="px-5 pb-5">
+          <template x-for="s in (result?.growth_plan?.increase_100pct?.steps || [])" :key="s.step">
+            <div class="step-action">
+              <div class="shrink-0 w-7 h-7 rounded-full bg-[#ede9fe] text-[#7c3aed] text-xs font-bold flex items-center justify-center" x-text="s.step"></div>
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-sm text-[#363150] mb-1" x-text="s.action"></div>
+                <div class="text-xs text-[#7c7799] mb-1" x-text="'Эффект: ' + s.effect"></div>
+                <div class="flex gap-4 flex-wrap text-xs text-[#aba5c4]">
+                  <span x-text="'⏱ ' + s.timeline"></span>
+                  <span x-text="'💰 ' + s.cost"></span>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Print/share -->
+      <div class="flex justify-center gap-3 pt-2">
+        <button onclick="window.print()" class="btn-secondary py-2 px-6 text-sm">🖨 Распечатать отчёт</button>
+        <button @click="page='form'" class="btn-secondary py-2 px-6 text-sm">← Новая оценка</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ SCRIPT ═══════════════ -->
+<script>
+function app() {
+  return {
+    page: 'home',
+    step: 1,
+    apiKey: '',
+    analyzing: false,
+    jobId: null,
+    pollTimer: null,
+    result: null,
+    error: null,
+    tab: 'valuation',
+    growthOpen: null,
+    loadingMsg: 'Анализируем отрасль и конкурентную среду...',
+    _msgIdx: 0,
+    _msgTimer: null,
+    _chartVal: null,
+    _chartRadar: null,
+
+    form: {
+      basic:       { name:'', country:'', city:'', industry:'', description:'', legal_form:'', founded_year:'', employees:'', currency:'RUB', asking_price:'' },
+      finances:    { revenue_cur:'', revenue_1:'', revenue_2:'', gross_profit:'', ebitda:'', net_profit:'', cash_flow:'', debt:'', receivables:'', payables:'', other_financial:'' },
+      assets:      { real_estate:'', equipment:'', transport:'', inventory:'', ip:'', software:'', other_assets:'' },
+      model:       { revenue_sources:'', recurring_pct:'', owner_dependency:'5', seasonality:'', contracts:'', scalability:'' },
+      customers:   { clients_count:'', top1_pct:'', top5_pct:'', avg_check:'', churn:'', market_desc:'', market_share:'' },
+      competition: { competitors:'', advantages:'', barriers:'', market_position:'' },
+      team:        { mgmt_description:'', key_person_risk:'', succession:'', structure:'' },
+      additional:  { legal_risks:'', tax_risks:'', sale_reason:'', documents:'', additional:'' }
+    },
+
+    init() {
+      this.apiKey = localStorage.getItem('_api_key') || ''
+      this.$watch('page', p => {
+        if (p === 'results') {
+          this.$nextTick(() => {
+            this.initValuationChart()
+          })
+        }
+      })
+      this.$watch('tab', t => {
+        if (t === 'valuation') this.$nextTick(() => this.initValuationChart())
+        if (t === 'analysis') this.$nextTick(() => this.initRadarChart())
+      })
+    },
+
+    async analyze() {
+      if (!this.apiKey) { this.error = 'Введите API ключ Anthropic в поле выше'; return }
+      this.analyzing = true
+      this.error = null
+      this.page = 'loading'
+      this._startLoadingMsg()
+      try {
+        const resp = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ api_key: this.apiKey, form: this.form })
+        })
+        const data = await resp.json()
+        if (data.error) { this.error = data.error; this.page = 'form'; this._stopLoadingMsg(); this.analyzing = false; return }
+        this.jobId = data.job_id
+        this._startPolling()
+      } catch(e) {
+        this.error = 'Ошибка соединения с сервером'
+        this.page = 'form'
+        this._stopLoadingMsg()
+        this.analyzing = false
+      }
+    },
+
+    _startPolling() {
+      this.pollTimer = setInterval(async () => {
+        try {
+          const r = await fetch(`/api/result/${this.jobId}`)
+          const d = await r.json()
+          if (d.status === 'done') {
+            clearInterval(this.pollTimer)
+            this._stopLoadingMsg()
+            this.result = d.result
+            this.tab = 'valuation'
+            this.analyzing = false
+            this.page = 'results'
+          } else if (d.status === 'error') {
+            clearInterval(this.pollTimer)
+            this._stopLoadingMsg()
+            this.error = d.error
+            this.page = 'form'
+            this.analyzing = false
+          }
+        } catch(e) { /* continue */ }
+      }, 3000)
+    },
+
+    _startLoadingMsg() {
+      const msgs = [
+        'Анализируем отрасль и конкурентную среду...',
+        'Изучаем географию и экономическую ситуацию...',
+        'Применяем затратный подход к оценке...',
+        'Рассчитываем рыночные мультипликаторы...',
+        'Ищем аналогичные сделки M&A...',
+        'Строим доходный подход и дисконтирование...',
+        'Оцениваем риски и факторы стоимости...',
+        'Формируем план роста стоимости...',
+        'Готовим итоговое заключение Big4...',
+      ]
+      this._msgIdx = 0
+      this.loadingMsg = msgs[0]
+      this._msgTimer = setInterval(() => {
+        this._msgIdx = (this._msgIdx + 1) % msgs.length
+        this.loadingMsg = msgs[this._msgIdx]
+      }, 4000)
+    },
+
+    _stopLoadingMsg() {
+      if (this._msgTimer) clearInterval(this._msgTimer)
+    },
+
+    // ── FORMATTERS ──
+    fmt(n) {
+      if (n === null || n === undefined) return '—'
+      return new Intl.NumberFormat('ru-RU').format(n)
+    },
+
+    fmtM(n) {
+      if (!n && n !== 0) return '—'
+      if (n === 0) return '—'
+      const c = this.result?.currency || 'RUB'
+      const sym = {RUB:'₽', USD:'$', EUR:'€', KZT:'₸', AED:'AED ', GBP:'£', CNY:'¥'}[c] || c + ' '
+      const num = new Intl.NumberFormat('ru-RU', {maximumFractionDigits:0}).format(n)
+      return c === 'RUB' || c === 'KZT' ? num + ' ' + sym : sym + num
+    },
+
+    // ── COLOR HELPERS ──
+    scoreColor(s) {
+      if (!s) return '#aba5c4'
+      if (s >= 75) return '#22c55e'
+      if (s >= 55) return '#f59e0b'
+      return '#ef4444'
+    },
+
+    probColor(v) {
+      if (v >= 70) return '#22c55e'
+      if (v >= 45) return '#f59e0b'
+      return '#ef4444'
+    },
+
+    riskImpactColor(v) {
+      if (v >= 70) return '#ef4444'
+      if (v >= 45) return '#f59e0b'
+      return '#22c55e'
+    },
+
+    levelBadge(l) {
+      const m = { CRITICAL:'badge-critical', HIGH:'badge-high', MEDIUM:'badge-medium', LOW:'badge-low' }
+      return m[l] || 'badge-low'
+    },
+
+    attrBadge(l) {
+      const m = { HIGH:'badge-green', MEDIUM:'badge-medium', LOW:'badge-high' }
+      return m[l] || 'badge-medium'
+    },
+
+    flagCard(s) {
+      const m = { CRITICAL:'border-red-300 bg-red-50', HIGH:'border-orange-200 bg-orange-50', MEDIUM:'border-amber-200 bg-amber-50', LOW:'border-[#ece7f7] bg-[#faf8fe]' }
+      return m[s] || 'border-[#ece7f7] bg-[#faf8fe]'
+    },
+
+    verdictCard(v) {
+      const m = { UNDERVALUED:'verdict-undervalued', FAIR_VALUE:'verdict-fair', OVERVALUED:'verdict-overvalued', HIGHLY_OVERVALUED:'verdict-high_overvalued' }
+      return m[v] || 'verdict-fair'
+    },
+
+    confClass(c) {
+      const m = { HIGH:'conf-high', MEDIUM:'conf-medium', LOW:'conf-low' }
+      return m[c] || 'conf-medium'
+    },
+
+    confLabel(c) {
+      return {HIGH:'Высокая уверенность', MEDIUM:'Средняя уверенность', LOW:'Низкая уверенность'}[c] || 'Средняя уверенность'
+    },
+
+    // ── DATA HELPERS ──
+    valuationRows() {
+      const v = this.result?.valuations
+      if (!v) return []
+      return [
+        { key:'minimum',          icon:'🔻', label:'Минимальная (ликвидационная)', amount: this.fmtM(v.minimum?.amount),          comment: v.minimum?.comment },
+        { key:'distressed_sale',  icon:'⚡', label:'Срочная продажа (1–3 мес.)',   amount: this.fmtM(v.distressed_sale?.amount),  comment: v.distressed_sale?.comment },
+        { key:'conservative',     icon:'🔵', label:'Консервативная',                amount: this.fmtM(v.conservative?.amount),     comment: v.conservative?.comment },
+        { key:'financial',        icon:'💼', label:'Для финансового инвестора',     amount: this.fmtM(v.financial_investor?.amount), comment: v.financial_investor?.comment },
+        { key:'market',           icon:'⭐', label:'Рыночная стоимость',            amount: this.fmtM(v.market?.amount),           comment: v.market?.comment },
+        { key:'optimistic',       icon:'📈', label:'Оптимистичная',                 amount: this.fmtM(v.optimistic?.amount),       comment: v.optimistic?.comment },
+        { key:'strategic',        icon:'🤝', label:'Для стратегического покупателя', amount: this.fmtM(v.strategic_buyer?.amount), comment: v.strategic_buyer?.comment },
+        { key:'control',          icon:'🏛', label:'Контрольный пакет (100%)',      amount: this.fmtM(v.control_stake?.amount),    comment: v.control_stake?.comment },
+        { key:'minority',         icon:'📊', label:'Миноритарная доля (30%)',       amount: this.fmtM(v.minority_30pct?.amount),   comment: v.minority_30pct?.comment },
+      ]
+    },
+
+    probRows() {
+      const p = this.result?.sale_probabilities
+      if (!p) return []
+      return [
+        { key:'asking', label:'Продажа по запрашиваемой цене', val: p.at_asking_price_pct },
+        { key:'3m',     label:'Продажа в течение 3 месяцев',   val: p.within_3_months_pct },
+        { key:'6m',     label:'Продажа в течение 6 месяцев',   val: p.within_6_months_pct },
+        { key:'12m',    label:'Продажа в течение 12 месяцев',  val: p.within_12_months_pct },
+        { key:'inv',    label:'Привлечение инвестора',          val: p.attracting_investor_pct },
+        { key:'grow',   label:'Рост стоимости за 3 года',       val: p.value_growth_3years_pct },
+      ]
+    },
+
+    areaCards() {
+      const r = this.result
+      if (!r) return []
+      return [
+        { key:'market',    icon:'🌍', label:'Рынок',           score: r.market?.score,            comment: r.market?.comment },
+        { key:'finances',  icon:'💰', label:'Финансы',         score: r.financial_analysis?.score, comment: r.financial_analysis?.comment },
+        { key:'model',     icon:'⚙️', label:'Бизнес-модель',   score: r.business_model?.score,     comment: r.business_model?.comment },
+        { key:'customers', icon:'👥', label:'Клиентская база', score: r.customer_base?.score,       comment: r.customer_base?.comment },
+        { key:'comp',      icon:'⚔️', label:'Конкуренция',    score: r.competition?.score,         comment: r.competition?.comment },
+        { key:'team',      icon:'👤', label:'Команда',         score: r.team?.score,               comment: r.team?.comment },
+        { key:'assets',    icon:'🏗', label:'Активы',          score: r.assets?.score,             comment: r.assets?.comment },
+        { key:'geo',       icon:'📍', label:'География',       score: r.geography?.score,          comment: r.geography?.comment },
+      ]
+    },
+
+    // ── CHARTS ──
+    initValuationChart() {
+      const canvas = document.getElementById('valuationChart')
+      if (!canvas || !this.result) return
+      if (this._chartVal) { this._chartVal.destroy(); this._chartVal = null }
+      const v = this.result.valuations
+      const marketVal = v?.market?.amount || 0
+      const items = [
+        { label: 'Ликвидационная',    val: v?.minimum?.amount || 0 },
+        { label: 'Срочная продажа',   val: v?.distressed_sale?.amount || 0 },
+        { label: 'Консервативная',    val: v?.conservative?.amount || 0 },
+        { label: 'Фин. инвестор',     val: v?.financial_investor?.amount || 0 },
+        { label: 'Рыночная',          val: v?.market?.amount || 0 },
+        { label: 'Оптимистичная',     val: v?.optimistic?.amount || 0 },
+        { label: 'Стратег. покупатель', val: v?.strategic_buyer?.amount || 0 },
+      ].sort((a,b) => a.val - b.val)
+      const colors = items.map(i => i.label === 'Рыночная' ? '#8b5cf6' : 'rgba(139,92,246,0.35)')
+      this._chartVal = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: items.map(i => i.label),
+          datasets: [{ data: items.map(i => i.val), backgroundColor: colors, borderRadius: 6, borderSkipped: false }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ' ' + new Intl.NumberFormat('ru-RU').format(ctx.parsed.x) + ' ' + (this.result?.currency || 'RUB')
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { callback: v => new Intl.NumberFormat('ru-RU', {notation:'compact', compactDisplay:'short'}).format(v) }, grid: { color: '#f3eefb' } },
+            y: { grid: { display: false } }
+          }
+        }
+      })
+    },
+
+    initRadarChart() {
+      const canvas = document.getElementById('radarChart')
+      if (!canvas || !this.result) return
+      if (this._chartRadar) { this._chartRadar.destroy(); this._chartRadar = null }
+      const r = this.result
+      this._chartRadar = new Chart(canvas, {
+        type: 'radar',
+        data: {
+          labels: ['Рынок', 'Финансы', 'Б-модель', 'Клиенты', 'Конкуренция', 'Команда', 'Активы', 'География'],
+          datasets: [{
+            data: [
+              r.market?.score || 0, r.financial_analysis?.score || 0, r.business_model?.score || 0,
+              r.customer_base?.score || 0, r.competition?.score || 0, r.team?.score || 0,
+              r.assets?.score || 0, r.geography?.score || 0
+            ],
+            backgroundColor: 'rgba(139,92,246,0.2)',
+            borderColor: '#8b5cf6',
+            pointBackgroundColor: '#8b5cf6',
+            pointRadius: 4,
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            r: {
+              min: 0, max: 100,
+              ticks: { stepSize: 25, font: { size: 10 }, color: '#aba5c4' },
+              grid: { color: '#ede9fe' },
+              pointLabels: { font: { size: 11 }, color: '#514c6b' }
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      })
+    },
+
+    // ── DEMO ──
+    loadDemo() {
+      this.form.basic = { name:'ТехноСервис', country:'Россия', city:'Москва', industry:'IT-услуги / Разработка ПО и аутсорсинг', description:'Компания по разработке заказного ПО и IT-аутсорсингу. Специализация — корпоративные системы автоматизации для промышленных предприятий. Работает с 2017 года, имеет собственную платформу.', legal_form:'ООО', founded_year:'2017', employees:'22', currency:'RUB', asking_price:'45000000' }
+      this.form.finances = { revenue_cur:'28000000', revenue_1:'22000000', revenue_2:'17000000', gross_profit:'65%', ebitda:'6000000', net_profit:'4500000', cash_flow:'5200000', debt:'2000000', receivables:'3500000', payables:'1200000', other_financial:'ОСНО, все налоги уплачены. Нераспределённая прибыль 8 млн руб. Финансовая и управленческая отчётность ведётся.' }
+      this.form.assets = { real_estate:'Офис в аренде: 250 кв.м., Москва, центр, 600 тыс. руб./мес.', equipment:'Рабочие станции (22 шт.) ~3 млн руб., серверное оборудование ~500 тыс. руб.', transport:'Нет корпоративного транспорта', inventory:'Нет материальных запасов', ip:'Собственная платформа автоматизации производства, зарегистрирована в Роспатент. 3 действующих контракта на сопровождение.', software:'Собственная CRM, GitLab, серверная инфраструктура.', other_assets:'База знаний и документация по 40+ завершённым проектам' }
+      this.form.model = { revenue_sources:'60% — разовые проекты разработки ПО, 40% — ежемесячные контракты на сопровождение', recurring_pct:'40', owner_dependency:'7', seasonality:'Q4 активнее на 25-30%, летом тише', contracts:'6 контрактов на сопровождение, общая сумма ~10 млн руб./год, срок 1-2 года', scalability:'Ограниченная — прямая зависимость от количества разработчиков' }
+      this.form.customers = { clients_count:'18 активных клиентов за последние 12 месяцев', top1_pct:'28', top5_pct:'71', avg_check:'Разовый проект: 800 тыс. — 3 млн руб. Сопровождение: 80-200 тыс./мес.', churn:'12', market_desc:'Российский рынок IT-аутсорсинга. После 2022 года значительно вырос из-за ухода иностранных вендоров. Оценочный объём: 400+ млрд руб/год. Рост 15-20% ежегодно.', market_share:'< 0.01% в общем рынке, ~3% в нише промышленной автоматизации СФО/УФО' }
+      this.form.competition = { competitors:'Крупные IT-интеграторы (EPAM, Softline, IBS), средние аутсорсеры (200+ компаний), фриланс-команды', advantages:'Глубокая экспертиза в промышленной автоматизации, собственная платформа, долгосрочные отношения с клиентами с 2017г, рекомендательные письма 5 крупных клиентов', barriers:'Умеренные — нужна отраслевая экспертиза и доверие клиентов', market_position:'Нишевый игрок в промышленном сегменте' }
+      this.form.team = { mgmt_description:'CEO (основатель) — технический специалист, 15 лет опыта. CTO (соучредитель). Команда 22 чел.: 16 разработчиков, 3 PM, 2 продажи, 1 бухгалтер.', key_person_risk:'Высокая зависимость от CEO и CTO. Уход любого из них критичен для бизнеса и клиентских отношений.', succession:'Плана преемственности нет', structure:'Плоская структура, процессы частично формализованы, сильная зависимость от ключевых людей' }
+      this.form.additional = { legal_risks:'Судебных споров нет', tax_risks:'Налоговых проверок не было. Компания на ОСНО.', sale_reason:'Основатель планирует переезд за рубеж, хочет продать за 6-12 месяцев', documents:'Финансовая отчётность за 3 года, управленческий P&L, список клиентов с контрактами, трудовые договоры, регистрация ПО', additional:'Возможна сделка с переходным периодом 6-12 месяцев с участием CEO. Есть рекомендательные письма от 5 крупных клиентов. Аналогичные сделки в РФ: IT-аутсорсеры 15-25 чел. продаются по мультипликатору 3-5x EBITDA.' }
+      this.page = 'form'
+      this.step = 1
+    }
+  }
+}
+</script>
+</body>
+</html>
