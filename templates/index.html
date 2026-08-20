@@ -409,17 +409,15 @@ canvas{max-width:100%!important}
         <h3 class="font-bold text-[#15181c] mb-4">Все типы стоимости</h3>
         <div class="space-y-2">
           <template x-for="row in valuationRows()" :key="row.key">
-            <div class="flex items-center justify-between gap-4 py-2 border-b border-[#f1f1f2] last:border-0">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="text-base shrink-0" x-text="row.icon"></span>
-                <div class="min-w-0">
-                  <div class="text-sm font-medium text-[#15181c] truncate" x-text="row.label"></div>
-                  <div class="text-xs text-[#6b7280] truncate" x-text="row.comment"></div>
+            <div class="py-2 border-b border-[#f1f1f2] last:border-0">
+              <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="text-base shrink-0" x-text="row.icon"></span>
+                  <span class="text-sm font-medium text-[#15181c]" x-text="row.label"></span>
                 </div>
+                <span class="shrink-0 font-bold text-[#15181c] text-sm" x-text="row.amount"></span>
               </div>
-              <div class="shrink-0 text-right">
-                <span class="font-bold text-[#15181c] text-sm" x-text="row.amount"></span>
-              </div>
+              <div class="text-xs text-[#6b7280] mt-0.5 pl-7" x-text="row.comment"></div>
             </div>
           </template>
           <!-- Probable range -->
