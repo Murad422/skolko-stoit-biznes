@@ -77,7 +77,20 @@ textarea.input-field{min-height:90px}
 .conf-low{color:#dc2626;background:#fee2e2;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
 .mult-row{display:grid;grid-template-columns:1fr 80px 100px 100px;gap:8px;padding:10px 0;border-bottom:1px solid #f1f1f2;font-size:13px;align-items:center}
 .prob-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f1f2}
-@media print{body{background:#fff}.card{box-shadow:none}}
+.print-only{display:none}
+@media print{
+body{background:#fff}
+.card{box-shadow:none;border:1px solid #d5d5d5;break-inside:avoid}
+.no-print{display:none!important}
+.print-tab{display:block!important}
+.print-only{display:block!important}
+.print-section-title{font-size:20px;font-weight:800;color:#15181c;margin:28px 0 14px;padding-top:18px}
+h2.print-section-title{page-break-before:always;break-after:avoid}
+h2.print-section-title:first-of-type{page-break-before:auto;padding-top:0;margin-top:0}
+.fade-in{animation:none!important}
+.driver-card,.destroyer-card,.method-block,.area-card,.growth-target,.risk-row{break-inside:avoid}
+canvas{max-width:100%!important}
+}
 </style>
 </head>
 
@@ -349,7 +362,7 @@ textarea.input-field{min-height:90px}
   <div class="max-w-4xl mx-auto">
 
     <!-- Results header -->
-    <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 no-print">
       <button @click="page='form'" class="btn-secondary py-2 px-4 text-sm">← Изменить данные</button>
       <div class="flex items-center gap-3">
         <span class="text-sm text-[#6b7280]" x-text="result?.business_name"></span>
@@ -379,7 +392,7 @@ textarea.input-field{min-height:90px}
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-1 overflow-x-auto pb-1 mb-6 flex-wrap">
+    <div class="flex gap-1 overflow-x-auto pb-1 mb-6 flex-wrap no-print">
       <button @click="tab='valuation'" :class="tab==='valuation'?'tab-btn active':'tab-btn'">💰 Стоимость</button>
       <button @click="tab='methodology'" :class="tab==='methodology'?'tab-btn active':'tab-btn'">📐 Методология</button>
       <button @click="tab='analysis'" :class="tab==='analysis'?'tab-btn active':'tab-btn'">📊 Анализ</button>
@@ -388,7 +401,8 @@ textarea.input-field{min-height:90px}
     </div>
 
     <!-- ── TAB: СТОИМОСТЬ ── -->
-    <div x-show="tab==='valuation'" class="space-y-6 fade-in">
+    <h2 class="print-only print-section-title">💰 Стоимость</h2>
+    <div x-show="tab==='valuation'" class="space-y-6 fade-in print-tab">
 
       <!-- All 10 valuations -->
       <div class="card p-5">
@@ -450,7 +464,8 @@ textarea.input-field{min-height:90px}
     </div>
 
     <!-- ── TAB: МЕТОДОЛОГИЯ ── -->
-    <div x-show="tab==='methodology'" class="space-y-5 fade-in">
+    <h2 class="print-only print-section-title">📐 Методология</h2>
+    <div x-show="tab==='methodology'" class="space-y-5 fade-in print-tab">
       <div class="card p-5">
         <h3 class="font-bold text-[#15181c] mb-1">Взвешенный результат</h3>
         <p class="text-xs text-[#6b7280] mb-4">Итоговая оценка получена как взвешенное среднее трёх подходов</p>
@@ -574,7 +589,8 @@ textarea.input-field{min-height:90px}
     </div>
 
     <!-- ── TAB: АНАЛИЗ ── -->
-    <div x-show="tab==='analysis'" class="space-y-5 fade-in">
+    <h2 class="print-only print-section-title">📊 Анализ</h2>
+    <div x-show="tab==='analysis'" class="space-y-5 fade-in print-tab">
       <!-- Radar chart -->
       <div class="card p-5">
         <h3 class="font-bold text-[#15181c] mb-4">Профиль факторов стоимости</h3>
@@ -602,7 +618,8 @@ textarea.input-field{min-height:90px}
     </div>
 
     <!-- ── TAB: РИСКИ ── -->
-    <div x-show="tab==='risks'" class="space-y-5 fade-in">
+    <h2 class="print-only print-section-title">⚠️ Риски</h2>
+    <div x-show="tab==='risks'" class="space-y-5 fade-in print-tab">
 
       <!-- Risk matrix -->
       <div class="card p-5">
@@ -696,7 +713,8 @@ textarea.input-field{min-height:90px}
     </div>
 
     <!-- ── TAB: РОСТ ── -->
-    <div x-show="tab==='growth'" class="space-y-5 fade-in">
+    <h2 class="print-only print-section-title">🚀 Рост стоимости</h2>
+    <div x-show="tab==='growth'" class="space-y-5 fade-in print-tab">
       <div class="card p-5 bg-[#f7f7f8]">
         <p class="text-sm text-[#3f4750] leading-relaxed">
           Ниже представлен конкретный пошаговый план действий для увеличения стоимости бизнеса на <strong>20%, 50% и 100%</strong>
@@ -721,7 +739,7 @@ textarea.input-field{min-height:90px}
           </div>
           <span class="text-[#b9975a] text-xl" x-text="growthOpen === '20' ? '▲' : '▼'"></span>
         </button>
-        <div x-show="growthOpen === '20'" x-transition class="px-5 pb-5">
+        <div x-show="growthOpen === '20'" x-transition class="px-5 pb-5 print-tab">
           <template x-for="s in (result?.growth_plan?.increase_20pct?.steps || [])" :key="s.step">
             <div class="step-action">
               <div class="shrink-0 w-7 h-7 rounded-full bg-[#d1fae5] text-[#059669] text-xs font-bold flex items-center justify-center" x-text="s.step"></div>
@@ -755,7 +773,7 @@ textarea.input-field{min-height:90px}
           </div>
           <span class="text-[#b9975a] text-xl" x-text="growthOpen === '50' ? '▲' : '▼'"></span>
         </button>
-        <div x-show="growthOpen === '50'" x-transition class="px-5 pb-5">
+        <div x-show="growthOpen === '50'" x-transition class="px-5 pb-5 print-tab">
           <template x-for="s in (result?.growth_plan?.increase_50pct?.steps || [])" :key="s.step">
             <div class="step-action">
               <div class="shrink-0 w-7 h-7 rounded-full bg-[#dbeafe] text-[#2563eb] text-xs font-bold flex items-center justify-center" x-text="s.step"></div>
@@ -789,7 +807,7 @@ textarea.input-field{min-height:90px}
           </div>
           <span class="text-[#b9975a] text-xl" x-text="growthOpen === '100' ? '▲' : '▼'"></span>
         </button>
-        <div x-show="growthOpen === '100'" x-transition class="px-5 pb-5">
+        <div x-show="growthOpen === '100'" x-transition class="px-5 pb-5 print-tab">
           <template x-for="s in (result?.growth_plan?.increase_100pct?.steps || [])" :key="s.step">
             <div class="step-action">
               <div class="shrink-0 w-7 h-7 rounded-full bg-[#f2e9d8] text-[#15181c] text-xs font-bold flex items-center justify-center" x-text="s.step"></div>
@@ -807,8 +825,8 @@ textarea.input-field{min-height:90px}
       </div>
 
       <!-- Print/share -->
-      <div class="flex justify-center gap-3 pt-2">
-        <button onclick="window.print()" class="btn-secondary py-2 px-6 text-sm">🖨 Распечатать отчёт</button>
+      <div class="flex justify-center gap-3 pt-2 no-print">
+        <button @click="printReport()" class="btn-secondary py-2 px-6 text-sm">🖨 Распечатать отчёт</button>
         <button @click="page='form'" class="btn-secondary py-2 px-6 text-sm">← Новая оценка</button>
       </div>
     </div>
@@ -860,6 +878,18 @@ function app() {
         if (t === 'valuation') this.$nextTick(() => this.initValuationChart())
         if (t === 'analysis') this.$nextTick(() => this.initRadarChart())
       })
+      window.addEventListener('beforeprint', () => this._ensureChartsForPrint())
+    },
+
+    _ensureChartsForPrint() {
+      if (this.page !== 'results') return
+      if (!this._chartVal) this.initValuationChart()
+      if (!this._chartRadar) this.initRadarChart()
+    },
+
+    printReport() {
+      this._ensureChartsForPrint()
+      this.$nextTick(() => window.print())
     },
 
     async analyze() {
